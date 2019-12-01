@@ -18,10 +18,22 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	total := 0
 	for scanner.Scan() {
+
 		value := scanner.Text()
 		v, _ := strconv.Atoi(value)
-		mass := (v / 3) - 2
-		total += mass
+		total += getMass(v, 0)
+		// total += mass
 	}
 	fmt.Println(total)
+}
+
+func getMass(init, total int) int {
+	if init <= 0 {
+		return total
+	}
+	newMass := (init / 3) - 2
+	if newMass > 0 {
+		total += newMass
+	}
+	return getMass(newMass, total)
 }
