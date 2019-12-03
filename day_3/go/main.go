@@ -5,10 +5,21 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
-	"reflect"
 	"strconv"
 	"strings"
 )
+
+// Point - is an x,y coordinate with float64 x & y axis values
+type Point struct {
+	x float64
+	y float64
+}
+
+// contains - checks if a Point exists in a map of Points
+func contains(points map[Point]int, point Point) bool {
+	_, ok := points[point]
+	return ok
+}
 
 func main() {
 	distanceValues, err := ioutil.ReadFile("day_3/input.txt")
@@ -25,18 +36,18 @@ func main() {
 	wireOnePoints := getPoints(wireOneValues)
 	wireTwoPoints := getPoints(wireTwoValues)
 
-	commonPoints := [][2]float64{}
-	wireOneKeys := reflect.ValueOf(wireTwoPoints).MapKeys()
-	for _, p1 := range wireOneKeys {
-		point := [2]float64{p1.Index(0).Float(), p1.Index(1).Float()}
-		_, ok := wireOnePoints[point]
-		if ok {
+	fmt.Println(len(wireOnePoints))
+	fmt.Println(len(wireTwoPoints))
+
+	commonPoints := []Point{}
+	for point := range wireOnePoints {
+		if contains(wireTwoPoints, point) {
 			commonPoints = append(commonPoints, point)
 		}
 	}
 	totals := []float64{}
 	for _, point := range commonPoints {
-		totals = append(totals, point[0]+point[1])
+		totals = append(totals, point.x+point.y)
 	}
 	fmt.Println(totals)
 	min, max := minMax(totals)
@@ -44,25 +55,23 @@ func main() {
 	fmt.Println(max)
 }
 
-func getPoints(arr []string) map[[2]float64]int {
+func getPoints(arr []string) map[Point]int {
 	XD := map[string]int{"R": 1, "L": -1, "U": 0, "D": 0}
 	YD := map[string]int{"R": 0, "L": 0, "U": 1, "D": -1}
 
-	x, y, l := 0, 0, 0
-	ans := make(map[[2]float64]int)
+	x, y, steps := 0, 0, 0
+	ans := make(map[Point]int)
 	for _, s := range arr {
 		direction := string(s[0])
 		distance, _ := strconv.Atoi(s[1:])
 		for distance > 0 {
-			l++
+			steps++
 			x += XD[direction]
 			y += YD[direction]
-			a := [2]float64{math.Abs(float64(x)), math.Abs(float64(y))}
-			_, ok := ans[a]
-			if ok == false {
-				ans[a] = l
+			a := Point{math.Abs(float64(x)), math.Abs(float64(y))}
+			if !contains(ans, a) {
+				ans[a] = steps
 			}
-
 			distance--
 		}
 	}
