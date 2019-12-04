@@ -35,59 +35,65 @@ func main() {
 
 	wireOnePoints := getPoints(wireOneValues)
 	wireTwoPoints := getPoints(wireTwoValues)
-
+	commonValues := pointIntersection(wireOnePoints, wireTwoPoints)
 	fmt.Println(len(wireOnePoints))
-	fmt.Println(len(wireTwoPoints))
+	totals := []float64{}
+	for _, point := range commonValues {
+		t := point.x + point.y
+		totals = append(totals, t)
+	}
 
-	commonPoints := []Point{}
-	for point := range wireOnePoints {
-		if contains(wireTwoPoints, point) {
-			commonPoints = append(commonPoints, point)
+	min := totals[0]
+	for _, t := range totals {
+		if t < min {
+			min = t
 		}
 	}
-	totals := []float64{}
-	for _, point := range commonPoints {
-		totals = append(totals, point.x+point.y)
+	print(min)
+}
+
+func minPoint(points []Point) Point {
+	p := points[0]
+	for _, point := range points {
+		if point.x < p.x && point.y < p.y {
+			p = point
+		} else {
+			if point.y < p.y {
+				p = point
+			}
+		}
 	}
-	fmt.Println(totals)
-	min, max := minMax(totals)
-	fmt.Println(min)
-	fmt.Println(max)
+	return p
+}
+
+func pointIntersection(w1, w2 map[Point]int) []Point {
+	points := []Point{}
+	for point := range w1 {
+		_, ok := w2[point]
+		if ok {
+			points = append(points, point)
+		}
+	}
+	return points
 }
 
 func getPoints(arr []string) map[Point]int {
 	XD := map[string]int{"R": 1, "L": -1, "U": 0, "D": 0}
 	YD := map[string]int{"R": 0, "L": 0, "U": 1, "D": -1}
 
-	x, y, steps := 0, 0, 0
+	x, y := 0, 0
 	ans := make(map[Point]int)
 	for _, s := range arr {
+		steps := 0
 		direction := string(s[0])
 		distance, _ := strconv.Atoi(s[1:])
-		for distance > 0 {
+		for i := 0; i < distance; i++ {
 			steps++
 			x += XD[direction]
 			y += YD[direction]
 			a := Point{math.Abs(float64(x)), math.Abs(float64(y))}
-			if !contains(ans, a) {
-				ans[a] = steps
-			}
-			distance--
+			ans[a] = steps
 		}
 	}
 	return ans
-}
-
-func minMax(array []float64) (float64, float64) {
-	var max float64 = array[0]
-	var min float64 = array[0]
-	for _, value := range array {
-		if max <= value {
-			max = value
-		}
-		if min >= value {
-			min = value
-		}
-	}
-	return min, max
 }

@@ -1,4 +1,4 @@
-A, B, _ = open("day_3/py3/input.txt").read().split("\n")
+A, B, _ = open("day_3/input.txt").read().split("\n")
 A, B = [x.split(",") for x in [A, B]]
 
 DX = {"L": -1, "R": 1, "U": 0, "D": 0}
