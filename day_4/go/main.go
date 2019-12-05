@@ -16,14 +16,13 @@ func main() {
 func meetsCriteria(num int) bool {
 	adjacent := false
 	increases := false
-	// trip := false
+	trip := false
 	numStr := strconv.Itoa(num)
 	numStrVals := strings.Split(numStr, "")
-	adjCounts, incCounts := 0, 0
+	adjCounts, incCounts, tripCounts := 0, 0, 0
 	for i := 0; i < len(numStrVals)-1; i++ {
 		curr, _ := strconv.Atoi(string(numStr[i]))
 		next, _ := strconv.Atoi(string(numStr[i+1]))
-		// fmt.Println(curr, next)
 		if next >= curr {
 			incCounts++
 		}
@@ -31,13 +30,17 @@ func meetsCriteria(num int) bool {
 			adjCounts++
 		}
 	}
-	// for i := 0; i < len(numStrVals)-2; i++ {
-	// 	curr, _ := strconv.Atoi(string(numStr[i]))
-	// 	next, _ := strconv.Atoi(string(numStr[i+2]))
-	// 	if curr == next {
-	// 		tripCounts++
-	// 	}
-	// }
+	for i := 0; i < len(numStrVals)-3; i++ {
+		curr, _ := strconv.Atoi(string(numStr[i]))
+		next, _ := strconv.Atoi(string(numStr[i+1]))
+		nextOne, _ := strconv.Atoi(string(numStr[i+2]))
+		nextTwo, _ := strconv.Atoi(string(numStr[i+3]))
+		if curr == next && next == nextOne {
+			if nextOne != nextTwo {
+				tripCounts++
+			}
+		}
+	}
 
 	if incCounts == 5 {
 		increases = true
@@ -45,10 +48,10 @@ func meetsCriteria(num int) bool {
 	if adjCounts >= 1 {
 		adjacent = true
 	}
-	// if tripCounts > 0 {
-	// 	trip = true
-	// }
-	if increases && adjacent {
+	if tripCounts > 0 {
+		trip = true
+	}
+	if increases && adjacent && !trip {
 		return true
 	}
 	return false
