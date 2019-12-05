@@ -23,12 +23,50 @@ while True:
         pos += 4
     elif opcode == 3:
         ins1 = program[pos + 1]
-        program[ins1] = 1
+        program[ins1] = 5
         pos += 2
     elif opcode == 4:
         ins1 = program[pos + 1]
         print(program[ins1])
         pos += 2
+    elif opcode == 5:
+        while len(instructions) < 2:
+            instructions = [0] + instructions
+        ins1, ins2 = program[pos + 1], program[pos + 2]
+        if (ins1 if instructions[1] == 1 else program[ins1]) != 0:
+            pos = ins2 if instructions[0] == 1 else program[ins2]
+        else:
+            pos += 3
+    elif opcode == 6:
+        while len(instructions) < 2:
+            instructions = [0] + instructions
+        ins1, ins2 = program[pos + 1], program[pos + 2]
+        if (ins1 if instructions[1] == 1 else program[ins1]) == 0:
+            pos = ins2 if instructions[0] == 1 else program[ins2]
+        else:
+            pos += 3
+    elif opcode == 7:
+        while len(instructions) < 3:
+            instructions = [0] + instructions
+        ins1, ins2, ins3 = program[pos + 1], program[pos + 2], program[pos + 3]
+        if (ins1 if instructions[2] == 1 else program[ins1]) < (
+            ins2 if instructions[1] == 1 else program[ins2]
+        ):
+            program[ins3] = 1
+        else:
+            program[ins3] = 0
+        pos += 4
+    elif opcode == 8:
+        while len(instructions) < 3:
+            instructions = [0] + instructions
+        ins1, ins2, ins3 = program[pos + 1], program[pos + 2], program[pos + 3]
+        if (ins1 if instructions[2] == 1 else program[ins1]) == (
+            ins2 if instructions[1] == 1 else program[ins2]
+        ):
+            program[ins3] = 1
+        else:
+            program[ins3] = 0
+        pos += 4
     else:
         assert opcode == 99
         break
