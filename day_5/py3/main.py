@@ -5,6 +5,7 @@ while True:
     instructions = [int(x) for x in str(program[pos])]
     opcode = (0 if len(instructions) == 1 else instructions[-2]) * 10 + instructions[-1]
     instructions = instructions[:-2]
+    print(instructions)
     if opcode == 1:
         while len(instructions) < 3:
             instructions = [0] + instructions
