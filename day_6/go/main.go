@@ -46,6 +46,7 @@ func main() {
 	fmt.Println(sum)
 }
 
+// loop - adds the total of the sub trees
 func loop(pos string, positions map[string][]position) int {
 	sum := 0
 	for _, p := range positions[pos] {
