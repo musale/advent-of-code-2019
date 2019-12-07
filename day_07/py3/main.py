@@ -4,7 +4,7 @@ import re
 
 
 def get_input() -> str:
-    with open("day_7/input.txt") as f:
+    with open("day_07/input.txt") as f:
         return f.read()
 
 

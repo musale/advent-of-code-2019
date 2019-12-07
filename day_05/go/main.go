@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	stateValues, err := ioutil.ReadFile("day_5/input.txt")
+	stateValues, err := ioutil.ReadFile("day_05/input.txt")
 	if err != nil {
 		log.Fatalf("failed to open file with error %v", err)
 	}

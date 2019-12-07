@@ -22,7 +22,7 @@ func contains(points map[Point]int, point Point) bool {
 }
 
 func main() {
-	distanceValues, err := ioutil.ReadFile("day_3/input.txt")
+	distanceValues, err := ioutil.ReadFile("day_03/input.txt")
 	if err != nil {
 		log.Fatalf("failed to open file with error %v", err)
 	}

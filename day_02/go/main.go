@@ -11,7 +11,7 @@ import (
 func main() {
 	for noun := 0; noun < 99; noun++ {
 		for verb := 0; verb < 99; verb++ {
-			stateValues, err := ioutil.ReadFile("day_2/input.txt")
+			stateValues, err := ioutil.ReadFile("day_02/input.txt")
 			if err != nil {
 				log.Fatalf("failed to open file with error %v", err)
 			}

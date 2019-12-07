@@ -1,6 +1,6 @@
 from collections import deque
 
-map_values = [v.strip().split(")") for v in open("day_6/input.txt").readlines()]
+map_values = [v.strip().split(")") for v in open("day_06/input.txt").readlines()]
 
 values = {}
 for value in map_values:

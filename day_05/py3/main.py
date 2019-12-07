@@ -1,4 +1,4 @@
-program = [int(i) for i in open("day_5/input.txt").read().split(",")]
+program = [int(i) for i in open("day_05/input.txt").read().split(",")]
 
 pos = 0
 while True:

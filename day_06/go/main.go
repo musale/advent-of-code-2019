@@ -15,7 +15,7 @@ type position struct {
 
 func main() {
 	positions := make(map[string][]position)
-	mapData, err := ioutil.ReadFile("day_6/input.txt")
+	mapData, err := ioutil.ReadFile("day_06/input.txt")
 	if err != nil {
 		log.Fatalf("failed to open file with error %v", err)
 	}
