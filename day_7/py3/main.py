@@ -1,93 +1,130 @@
+from collections import defaultdict
 from itertools import permutations
-
-inputs = [int(i) for i in open("day_7/input.txt").read().split(",")]
-phase_setting_sequences = list(permutations(range(5), 5))
+import re
 
 
-def runner(phase_setting):
-    program = list(inputs)
-    pos = 0
-    next_input = 0
-    while True:
-        instructions = [int(x) for x in str(program[pos])]
-        opcode = (
-            0 if len(instructions) == 1 else instructions[-2]
-        ) * 10 + instructions[-1]
-        instructions = instructions[:-2]
+def get_input() -> str:
+    with open("day_7/input.txt") as f:
+        return f.read()
+
+
+def get_input_lines() -> list:
+    return get_input().split("\n")
+
+
+def ints(text: str) -> tuple:
+    return tuple(map(int, re.findall("([+\-0-9]+)", text)))
+
+
+def flat_map(collection):
+    for container in collection:
+        for element in container:
+            yield element
+
+
+class IntCode:
+    """ A basic class to run intcode processing. Main routine copied from day 5 """
+
+    def __init__(self, values: list, inputs: list):
+        self.code = defaultdict(int, [(i, values[i]) for i in range(len(values))])
+        self.pointer = 0
+        self.inputs = inputs
+        self.outputs = []
+        self.running = True
+        self.paused = False
+
+    def tick(self):
+        opcode = self.code[self.pointer] % 100
+        pos1 = ((self.code[self.pointer] // 100) % 10) == 0
+        pos2 = ((self.code[self.pointer] // 1000) % 10) == 0
+        # pos3 = ((self.code[self.pointer] // 10000) % 10) == 0
+
+        arg1 = (
+            self.code[self.code[self.pointer + 1]]
+            if pos1
+            else self.code[self.pointer + 1]
+        )
+        arg2 = (
+            self.code[self.code[self.pointer + 2]]
+            if pos2
+            else self.code[self.pointer + 2]
+        )
+        # arg3 = code[code[pointer + 3]] if pos3 else code[pointer + 3]
+
+        self.paused = False
         if opcode == 1:
-            while len(instructions) < 3:
-                instructions = [0] + instructions
-            ins1, ins2, ins3 = program[pos + 1], program[pos + 2], program[pos + 3]
-            program[ins3] = (ins1 if instructions[2] == 1 else program[ins1]) + (
-                ins2 if instructions[1] == 1 else program[ins2]
-            )
-            pos += 4
+            self.code[self.code[self.pointer + 3]] = arg1 + arg2
+            self.pointer += 4
         elif opcode == 2:
-            while len(instructions) < 3:
-                instructions = [0] + instructions
-            ins1, ins2, ins3 = program[pos + 1], program[pos + 2], program[pos + 3]
-            program[ins3] = (ins1 if instructions[2] == 1 else program[ins1]) * (
-                ins2 if instructions[1] == 1 else program[ins2]
-            )
-            pos += 4
+            self.code[self.code[self.pointer + 3]] = arg1 * arg2
+            self.pointer += 4
         elif opcode == 3:
-            ins1 = program[pos + 1]
-            program[ins1] = phase_setting[next_input]
-            next_input += 1
-            pos += 2
+            if len(self.inputs) > 0:
+                self.code[self.code[self.pointer + 1]] = self.inputs.pop(0)
+                self.pointer += 2
+            else:
+                self.paused = True
         elif opcode == 4:
-            ins1 = program[pos + 1]
-            return program[ins1]
-            pos += 2
+            self.outputs.append(arg1)
+            self.pointer += 2
         elif opcode == 5:
-            while len(instructions) < 2:
-                instructions = [0] + instructions
-            ins1, ins2 = program[pos + 1], program[pos + 2]
-            if (ins1 if instructions[1] == 1 else program[ins1]) != 0:
-                pos = ins2 if instructions[0] == 1 else program[ins2]
+            if arg1 != 0:
+                self.pointer = arg2
             else:
-                pos += 3
+                self.pointer += 3
         elif opcode == 6:
-            while len(instructions) < 2:
-                instructions = [0] + instructions
-            ins1, ins2 = program[pos + 1], program[pos + 2]
-            if (ins1 if instructions[1] == 1 else program[ins1]) == 0:
-                pos = ins2 if instructions[0] == 1 else program[ins2]
+            if arg1 == 0:
+                self.pointer = arg2
             else:
-                pos += 3
+                self.pointer += 3
         elif opcode == 7:
-            while len(instructions) < 3:
-                instructions = [0] + instructions
-            ins1, ins2, ins3 = program[pos + 1], program[pos + 2], program[pos + 3]
-            if (ins1 if instructions[2] == 1 else program[ins1]) < (
-                ins2 if instructions[1] == 1 else program[ins2]
-            ):
-                program[ins3] = 1
-            else:
-                program[ins3] = 0
-            pos += 4
+            self.code[self.code[self.pointer + 3]] = 1 if arg1 < arg2 else 0
+            self.pointer += 4
         elif opcode == 8:
-            while len(instructions) < 3:
-                instructions = [0] + instructions
-            ins1, ins2, ins3 = program[pos + 1], program[pos + 2], program[pos + 3]
-            if (ins1 if instructions[2] == 1 else program[ins1]) == (
-                ins2 if instructions[1] == 1 else program[ins2]
-            ):
-                program[ins3] = 1
-            else:
-                program[ins3] = 0
-            pos += 4
-        else:
-            assert opcode == 99
-            break
+            self.code[self.code[self.pointer + 3]] = 1 if arg1 == arg2 else 0
+            self.pointer += 4
+        elif opcode == 99:
+            self.running = False
+
+    def run(self):
+        while self.running:
+            self.tick()
+        return self
 
 
-v = 0
-for sequences in phase_setting_sequences:
-    output = 0
-    for phase_setting in sequences:
-        output = runner([phase_setting, output])
-        print(phase_setting, output)
-    if output > v:
-        v = output
-print(v)
+def part1(code: list):
+    values = set()
+    for settings in permutations(range(5)):
+        out = [0]
+        for i in range(5):
+            out = IntCode(code, [settings[i], *out]).run().outputs
+        values.add(out[0])
+    print("Part 1:", max(values))
+
+
+def part2(code: list):
+    values = set()
+    for settings in permutations(range(5, 10)):
+        amplifiers = [IntCode(code, [settings[i]]) for i in range(5)]
+
+        # Initial starting input
+        amplifiers[0].inputs.append(0)
+
+        # Link outputs to inputs
+        for i in range(5):
+            amplifiers[i].outputs = amplifiers[(i + 1) % 5].inputs
+
+        # Run until all are finished
+        while any(a.running for a in amplifiers):
+            for a in amplifiers:
+                a.tick()
+
+        values.add(amplifiers[4].outputs[0])
+
+    print("Part 2:", max(values))
+
+
+if __name__ == "__main__":
+    input_code = [*ints(get_input())]
+    part1(input_code)
+    part2(input_code)
