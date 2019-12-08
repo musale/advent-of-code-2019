@@ -1,0 +1,35 @@
+from collections import Counter
+
+
+def part_one(images):
+    prev = -1
+    zeros = 0
+    ones = 0
+    twos = 0
+    for _, v in images.items():
+        c = Counter(v)
+        curr_zeros = c.get(0, 0)
+        if prev != -1:
+            if curr_zeros < zeros:
+                prev, zeros = zeros, curr_zeros
+                ones = c.get(1, 0)
+                twos = c.get(2, 0)
+        else:
+            prev, zeros = curr_zeros, curr_zeros
+            ones = c.get(1, 0)
+            twos = c.get(2, 0)
+    return ones * twos
+
+
+if __name__ == "__main__":
+    image_data = [int(i) for i in open("day_08/input.txt").read().strip()]
+    width = 25
+    height = 6
+    layers = len(image_data) // (width * height)
+    image_layers = {}
+    current_pos = 0
+    for i in range(layers):
+        layer_data = image_data[current_pos : (width * height) + current_pos]
+        current_pos += width * height
+        image_layers[i] = layer_data
+    print(part_one(image_layers))
