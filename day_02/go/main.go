@@ -8,9 +8,10 @@ import (
 	"strings"
 )
 
+// code - single integer in an IntCode program
 type code int
 
-// IntCode - machine that can run int code
+// IntCode - program for a machine that can run int code
 type IntCode struct {
 	Input    []code
 	Outputs  []code
@@ -28,7 +29,6 @@ func (c *IntCode) Tick() {
 	opcode := mode % 100
 	c.Modes = [3]code{(mode / 100) % 10, (mode / 1000) % 10, (mode / 10000) % 10}
 	c.Paused = false
-
 	switch opcode {
 	case 1:
 		c.Input[c.getAddr(3)] = c.getArgument(1) + c.getArgument(2)
@@ -82,7 +82,8 @@ func (c *IntCode) getAddr(pos code) code {
 	return val
 }
 
-func main() {
+// readInput - from file and convert to code
+func readInput() []code {
 	inputValues, err := ioutil.ReadFile("day_02/input.txt")
 	if err != nil {
 		log.Fatalf("Failed to open file with error %v", err)
@@ -94,9 +95,32 @@ func main() {
 		num, _ := strconv.Atoi(s)
 		input[j] = code(num)
 	}
+	return input
+}
+
+func main() {
+	partOneInput := readInput()
 	var intCode IntCode
 	intCode.Running = true
-	intCode.Input = input
+	intCode.Input = partOneInput
 	intCode.Run()
-	fmt.Println("Part 1: ", intCode.Input[0])
+	fmt.Println("Part 1:", intCode.Input[0])
+
+	for noun := 0; noun < 99; noun++ {
+		for verb := 0; verb < 99; verb++ {
+			partTwoInput := readInput()
+			partTwoInput[1] = code(noun)
+			partTwoInput[2] = code(verb)
+			var intCode IntCode
+			intCode.Input = partTwoInput
+			intCode.Running = true
+			intCode.Run()
+			if intCode.Input[0] == 19690720 {
+				fmt.Println(noun)
+				fmt.Println(verb)
+				fmt.Println("Part 2:", 100*noun+verb)
+				return
+			}
+		}
+	}
 }
