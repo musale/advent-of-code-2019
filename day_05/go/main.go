@@ -13,14 +13,14 @@ type code int
 
 // IntCode - program for a machine that can run int code
 type IntCode struct {
-	Input    []code
-	Outputs  []code
-	Modes    []code
+	Input        []code
+	Outputs      []code
+	Modes        []code
 	Instructions []code
-	StartPos code
-	RelBase  code
-	Running  bool
-	Paused   bool
+	StartPos     code
+	RelBase      code
+	Running      bool
+	Paused       bool
 }
 
 // Tick - starts an int code program with the provided input
@@ -37,16 +37,42 @@ func (c *IntCode) Tick() {
 		c.Input[c.getAddr(3)] = c.getArgument(1) * c.getArgument(2)
 		c.StartPos += 4
 	case 3:
-		if len(c.Instructions) > 0{
+		if len(c.Instructions) > 0 {
 			c.Input[c.getAddr(1)] = c.Instructions[0]
 			c.Instructions = c.Instructions[1:]
 			c.StartPos += 2
-		} else{
+		} else {
 			c.Paused = true
 		}
 	case 4:
 		c.Outputs = append(c.Outputs, c.getArgument(1))
-		c.StartPos +=2
+		c.StartPos += 2
+	case 5:
+		if c.getArgument(1) != 0 {
+			c.StartPos = c.getArgument(2)
+		} else {
+			c.StartPos += 3
+		}
+	case 6:
+		if c.getArgument(1) == 0 {
+			c.StartPos = c.getArgument(2)
+		} else {
+			c.StartPos += 3
+		}
+	case 7:
+		if c.getArgument(1) < c.getArgument(2) {
+			c.Input[c.getAddr(3)] = code(1)
+		} else {
+			c.Input[c.getAddr(3)] = code(0)
+		}
+		c.StartPos += 4
+	case 8:
+		if c.getArgument(1) == c.getArgument(2) {
+			c.Input[c.getAddr(3)] = code(1)
+		} else {
+			c.Input[c.getAddr(3)] = code(0)
+		}
+		c.StartPos += 4
 	case 99:
 		c.Running = false
 	}
@@ -114,7 +140,7 @@ func (c *IntCode) maxOutput() code {
 	var max code
 	for i := 0; i < len(c.Outputs); i++ {
 		curr := c.Outputs[i]
-		if curr > max{
+		if curr > max {
 			max = curr
 		}
 	}
@@ -122,11 +148,15 @@ func (c *IntCode) maxOutput() code {
 }
 
 func main() {
-	partOneInput := readInput()
-	var intCode IntCode
-	intCode.Running = true
-	intCode.Input = partOneInput
-	intCode.Instructions = []code{code(1)}
-	intCode.Run()
-	fmt.Println("Part 1:", intCode.maxOutput())
+	var partOne, partTwo IntCode
+	partOne.Running = true
+	partOne.Input = readInput()
+	partOne.Instructions = []code{code(1)}
+	partOne.Run()
+	fmt.Println("Part 1:", partOne.maxOutput())
+	partTwo.Running = true
+	partTwo.Input = readInput()
+	partTwo.Instructions = []code{code(5)}
+	partTwo.Run()
+	fmt.Println("Part 2:", partTwo.maxOutput())
 }
